@@ -77,12 +77,12 @@ if st.button('Start Game'):
     if len(set(current_players)) == 4:
         teams = [1,1,2,2]
         
-        c.execute("INSERT INTO games (start_time) VALUES (datetime('now'))")
+        c.execute("INSERT INTO games (start_time, status) VALUES (datetime('now'), ?)", ('playing',))
         conn.commit()
 
         game_id = c.lastrowid
         st.session_state["current_game_id"] = game_id
-        st.session_state["round_id"] = 1
+        st.session_state["highest_round_id"] = 1
         
         for index in range(4):
             c.execute("INSERT INTO players (game_id, team, player) VALUES (?,?,?)", (game_id, teams[index], current_players[index]))

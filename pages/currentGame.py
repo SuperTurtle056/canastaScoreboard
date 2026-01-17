@@ -233,6 +233,8 @@ newnewcols1, newnewcols2, newnewcols3, newnewcols4, newnewcols5 = st.columns([0.
 with newnewcols1:
     if st.button('Save'):
         if sum(player_3_scores) + sum(player_4_scores) > 5000 or sum(player_1_scores) + sum(player_2_scores) > 5000:
+            c.execute("UPDATE games SET status = ? WHERE game_id = ?",("completed", game_id))
+            conn.commit()
             st.switch_page('app.py')
         else:
             st.toast('No Winner Yet!')

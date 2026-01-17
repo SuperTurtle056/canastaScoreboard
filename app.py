@@ -9,8 +9,6 @@ def get_connection():
 conn = get_connection()
 c = conn.cursor()
 
-# st.title("Canasta"
-
 st.title('A Scoring and Leaderboard System for Canasta')
 
 st.subheader('Rules')
@@ -38,7 +36,14 @@ if "highest_round_id" not in st.session_state:
 c.execute("""
 CREATE TABLE IF NOT EXISTS games (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    start_time TEXT
+    start_time TEXT,
+    status TEXT
 )
 """)
 conn.commit()
+
+
+##TODO
+# Logic on going out points - have to have made a meld over 300 points.
+# Logic on red threes - max number in round and double points if one team gets all
+# Hidden canasta button for bonus

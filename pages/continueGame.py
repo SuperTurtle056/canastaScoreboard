@@ -11,24 +11,28 @@ c = conn.cursor()
 
 st.title('Continue Game')
 
-game_id = st.number_input("Game ID", min_value=1, step=1)
+games_playing_df = pd.read_sql('SELECT * FROM games WHERE status = ?', conn, params = ('playing',))
 
+# game_id = st.selectbox("Game ID", games_playing_df['id'])
 
-if st.button("Continue"):
-    st.session_state["current_game_id"] = game_id
+for game_id in games_playing_df['id']:
+    date_started = games_playing_df.loc[games_playing_df["id"] == game_id, "start_time"].iloc[0]
+    date_started = pd.to_datetime(date_started).strftime("%d %b %Y, %H:%M")
+    if st.button(f"Continue Game Sarted On: {date_started}"):
+        st.session_state["current_game_id"] = game_id
 
-    round_df = pd.read_sql(
-        "SELECT round_id FROM melds WHERE game_id = ?",
-        conn,
-        params=(game_id,)
-    )
+        round_df = pd.read_sql(
+            "SELECT round_id FROM melds WHERE game_id = ?",
+            conn,
+            params=(game_id,)
+        )
 
-    if round_df.empty:
-        st.session_state["highest_round_id"] = 1
-    else:
-        st.session_state["highest_round_id"] = int(round_df["round_id"].max())
+        if round_df.empty:
+            st.session_state["highest_round_id"] = 1
+        else:
+            st.session_state["highest_round_id"] = int(round_df["round_id"].max())
 
-    st.switch_page("pages/currentGame.py")
+        st.switch_page("pages/currentGame.py")
 
 st.sidebar.page_link('app.py', label='Home')
 st.sidebar.page_link('pages/leaderboard.py', label='Leaderboard')

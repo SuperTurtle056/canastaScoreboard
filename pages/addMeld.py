@@ -34,7 +34,6 @@ c = conn.cursor()
 
 st.title("Meld Input")
 
-
 base_card = st.selectbox("Card", ['Black 3',"4","5","6","7","8","9","10","J","Q","K","A"], key = 'base_card')
 
 if base_card == 'Black 3':
