@@ -82,7 +82,7 @@ if st.button('Start Game'):
 
         game_id = c.lastrowid
         st.session_state["current_game_id"] = game_id
-        # st.session_state["round_id"] = 1 TODO - make round save so that it automatically starts at the correct round when inputting data
+        st.session_state["round_id"] = 1
         
         for index in range(4):
             c.execute("INSERT INTO players (game_id, team, player) VALUES (?,?,?)", (game_id, teams[index], current_players[index]))

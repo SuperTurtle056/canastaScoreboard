@@ -61,16 +61,23 @@ st.markdown(
 )
 
 
+round_id = st.session_state["round_id"]
 game_id = st.session_state["current_game_id"]
+
+def new_round():
+    st.session_state['round_id'] += 1
+
 df_melds = pd.read_sql("SELECT * FROM melds WHERE game_id = ?", conn, params = (game_id,))
 df_red_threes = pd.read_sql("SELECT * FROM red_threes WHERE game_id = ?", conn, params = (game_id,))
 df_deductions = pd.read_sql("SELECT * FROM deductions WHERE game_id = ?", conn, params = (game_id,))
 
 ## Convoluted way of checking each df to see which has the most rounds stored (otherwise inputting red threes without others doesnt update scores)
-unique_rounds = [df_melds['round_id'].unique(),df_red_threes['round_id'].unique(),df_deductions['round_id'].unique()]
-length_rounds = [len(x) for x in unique_rounds]
-longest_index = np.argmax(np.array(length_rounds))
-num_rounds = unique_rounds[longest_index]
+# unique_rounds = [df_melds['round_id'].unique(),df_red_threes['round_id'].unique(),df_deductions['round_id'].unique()]
+# length_rounds = [len(x) for x in unique_rounds]
+# longest_index = np.argmax(np.array(length_rounds))
+# num_rounds = unique_rounds[longest_index]
+
+num_rounds = range(1,round_id+1)
 
 players = pd.read_sql('SELECT * FROM players WHERE game_id = ?', conn, params = (game_id,))
 players = players['player']
@@ -223,12 +230,16 @@ with col3:
 
 ## Useful buttons
 newcols1, newcols2, newcols3 = st.columns(3)
-with newcols1:
-    st.page_link("pages/addRedThree.py", label="Add Red Threes", icon="➕")
+# with newcols1:
+#     st.page_link("pages/addRedThree.py", label="Add Red Threes", icon="➕")
+# with newcols2:
+#     st.page_link("pages/addMeld.py", label="Add Meld", icon="➕")
+# with newcols3:
+#     st.page_link("pages/handDeductions.py", label="Left in Hand", icon="➕")
+
 with newcols2:
-    st.page_link("pages/addMeld.py", label="Add Meld", icon="➕")
-with newcols3:
-    st.page_link("pages/handDeductions.py", label="Left in Hand", icon="➕")
+    st.button('New Round', on_click=new_round)
+        
 
 
 ## End game buttons
