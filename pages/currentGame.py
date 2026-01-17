@@ -48,6 +48,19 @@ CREATE TABLE IF NOT EXISTS deductions (
 """)
 conn.commit()
 
+st.markdown(
+    """
+    <style>
+    div.stButton > button > div {
+        font-family: "Courier New", sans-serif !important;
+        font-size: 14px !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+
 game_id = st.session_state["current_game_id"]
 df_melds = pd.read_sql("SELECT * FROM melds WHERE game_id = ?", conn, params = (game_id,))
 df_red_threes = pd.read_sql("SELECT * FROM red_threes WHERE game_id = ?", conn, params = (game_id,))
@@ -63,13 +76,13 @@ players = pd.read_sql('SELECT * FROM players WHERE game_id = ?', conn, params = 
 players = players['player']
 
 st.title("Scorecard")
-col1, col2, col3 = st.columns([0.1,0.45,0.45], vertical_alignment='bottom')
+col1, col2, col3 = st.columns([0.15,0.425,0.425], vertical_alignment='bottom')
 
 ## Just for the looks
 with col1:
     for round in num_rounds:
-        st.write(f'Round {round}:')
-    st.write('Total:')
+        st.button(f'Round {round}:', key = f'round_{round}')
+    st.button('Total:', key = 'total')
 
 ## Shows team 1 info
 with col2:
@@ -81,7 +94,7 @@ with col2:
     df_deductions_player_2 = pd.read_sql('SELECT * FROM deductions WHERE player = ? AND game_id = ?', conn, params=(players[1], game_id,))
     
     st.subheader('Team 1')  
-    col2_1, col2_2,col2_3 = st.columns([0.4,0.4,0.2])
+    col2_1, col2_2,col2_3 = st.columns([0.35,0.35,0.3])
     with col2_1:
         st.write(players[0])
     with col2_2:
@@ -93,31 +106,53 @@ with col2:
     player_2_scores = []
     
     for round in num_rounds:
+        st.session_state["current_round_id"] = round
+        
         with col2_1:
             score_player_1 = df_meld_player_1.loc[df_meld_player_1['round_id'] == round, 'score'].sum() + red_threes(df_red_threes_player_1.loc[df_red_threes_player_1['round_id'] == round, 'card_count'].sum()) - df_deductions_player_1.loc[df_deductions_player_1['round_id'] == round, 'points_lost'].sum()
+            
             if df_deductions_player_1.loc[df_deductions_player_1['round_id'] == round, 'points_lost'].sum() == 0:
                 score_player_1 += 100
-                st.write(score_player_1,"(O)")
+                if st.button(f':violet[{score_player_1}]', key = f'p1_inspect_{round}'):
+                    st.session_state["selected_player"] = players[0]
+                    st.switch_page("pages/playerPointsInspect.py")
             else:
-                st.write(score_player_1)
+                if st.button(f'{score_player_1}', key = f'p1_inspect_{round}'):
+                    st.session_state["selected_player"] = players[0]
+                    st.switch_page("pages/playerPointsInspect.py")
+                    
             player_1_scores.append(score_player_1)
+            
         with col2_2:
             score_player_2 = df_meld_player_2.loc[df_meld_player_2['round_id'] == round, 'score'].sum() + red_threes(df_red_threes_player_2.loc[df_red_threes_player_2['round_id'] == round, 'card_count'].sum()) - df_deductions_player_2.loc[df_deductions_player_2['round_id'] == round, 'points_lost'].sum()
+            
             if df_deductions_player_2.loc[df_deductions_player_2['round_id'] == round, 'points_lost'].sum() == 0:
                 score_player_2 += 100
-                st.write(score_player_2,"(O)")
+                if st.button(f':violet[{score_player_2}]', key = f'p2_inspect_{round}'):
+                    st.session_state["selected_player"] = players[1]
+                    st.switch_page("pages/playerPointsInspect.py")
+                
             else:
-                st.write(score_player_2)
+                if st.button(f'{score_player_2}', key = f'p2_inspect_{round}'):
+                    st.session_state["selected_player"] = players[1]
+                    st.switch_page("pages/playerPointsInspect.py")
             player_2_scores.append(score_player_2)
+            
         with col2_3:
-            st.write(score_player_1+score_player_2)
+            st.button(f'{score_player_1+score_player_2}', key = f'team_1_tot_round_{round}')
     
     with col2_1:
-        st.write(sum(player_1_scores))
+        st.button(f'{sum(player_1_scores)}', key = 'p1_total')
     with col2_2:
-        st.write(sum(player_2_scores))
+        st.button(f'{sum(player_2_scores)}', key = 'p2_total')
     with col2_3:
-        st.write(sum(player_1_scores) + sum(player_2_scores))
+        team_1_total = sum(player_1_scores) + sum(player_2_scores)
+        if team_1_total < 1500:
+            st.button(f':green[{team_1_total}]', key = 'team_1_total')
+        elif team_1_total < 3000:
+            st.button(f':orange[{team_1_total}]', key = 'team_1_total')
+        else:
+            st.button(f':red[{team_1_total}]', key = 'team_1_total')
     
 ## Shows team 2 info    
 with col3:
@@ -130,7 +165,7 @@ with col3:
     
     st.subheader('Team 2')
     
-    col3_1, col3_2,col3_3 = st.columns([0.4,0.4,0.2])
+    col3_1, col3_2,col3_3 = st.columns([0.35,0.35,0.3])
     with col3_1:
         st.write(players[2])
     with col3_2:
@@ -144,29 +179,46 @@ with col3:
     for round in num_rounds:
         with col3_1:
             score_player_3 = df_meld_player_3.loc[df_meld_player_3['round_id'] == round, 'score'].sum() + red_threes(df_red_threes_player_3.loc[df_red_threes_player_3['round_id'] == round, 'card_count'].sum()) - df_deductions_player_3.loc[df_deductions_player_3['round_id'] == round, 'points_lost'].sum()
+            
             if df_deductions_player_3.loc[df_deductions_player_3['round_id'] == round, 'points_lost'].sum() == 0:
                 score_player_3 += 100
-                st.write(score_player_3,"(O)")
+                if st.button(f':violet[{score_player_3}]', key = f'p3_inspect_{round}'):
+                    st.session_state["selected_player"] = players[2]
+                    st.switch_page("pages/playerPointsInspect.py")
             else:
-                st.write(score_player_3)
+                if st.button(f'{score_player_3}', key = f'p3_inspect_{round}'):
+                    st.session_state["selected_player"] = players[2]
+                    st.switch_page("pages/playerPointsInspect.py")
+                    
             player_3_scores.append(score_player_3)
+            
         with col3_2:
             score_player_4 = df_meld_player_4.loc[df_meld_player_4['round_id'] == round, 'score'].sum() + red_threes(df_red_threes_player_4.loc[df_red_threes_player_4['round_id'] == round, 'card_count'].sum()) - df_deductions_player_4.loc[df_deductions_player_4['round_id'] == round, 'points_lost'].sum()
             if df_deductions_player_4.loc[df_deductions_player_4['round_id'] == round, 'points_lost'].sum() == 0:
                 score_player_4 += 100
-                st.write(score_player_4,"(O)")
+                if st.button(f':violet[{score_player_4}]', key = f'p4_inspect_{round}'):
+                    st.session_state["selected_player"] = players[3]
+                    st.switch_page("pages/playerPointsInspect.py")
             else:
-                st.write(score_player_4)
+                if st.button(f'{score_player_4}', key = f'p4_inspect_{round}'):
+                    st.session_state["selected_player"] = players[3]
+                    st.switch_page("pages/playerPointsInspect.py")
             player_4_scores.append(score_player_4)
         with col3_3:
-            st.write(score_player_3+score_player_4)
+            st.button(f'{score_player_3+score_player_4}')
     
     with col3_1:
-        st.write(sum(player_3_scores))
+        st.button(f'{sum(player_3_scores)}', key = 'p3_total')
     with col3_2:
-        st.write(sum(player_4_scores))
+        st.button(f'{sum(player_4_scores)}', key = 'p4_total')
     with col3_3:
-        st.write(sum(player_3_scores) + sum(player_4_scores))
+        team_2_total = sum(player_3_scores) + sum(player_4_scores)
+        if team_2_total < 1500:
+            st.button(f':green[{team_2_total}]', key = 'team_2_total')
+        elif team_2_total < 3000:
+            st.button(f':orange[{team_2_total}]', key = 'team_2_total')
+        else:
+            st.button(f':red[{team_2_total}]', key = 'team_2_total')
 
 
 ## Useful buttons
@@ -180,15 +232,15 @@ with newcols3:
 
 
 ## End game buttons
-newnewcols1, newnewcols2 = st.columns(2)
-with newnewcols1:
+newnewcols1, newnewcols2, newnewcols3, newnewcols4, newnewcols5 = st.columns(5)
+with newnewcols2:
     if st.button('Save'):
         if sum(player_3_scores) + sum(player_4_scores) > 5000 or sum(player_1_scores) + sum(player_2_scores):
             st.switch_page('app.py')
         else:
             st.toast('No Winner Yet!')
 
-with newnewcols2:
+with newnewcols4:
     if st.button('Discard'):
         c.execute("""DELETE FROM deductions WHERE game_id = ?""", (game_id,))
         c.execute("""DELETE FROM melds WHERE game_id = ?""", (game_id,))
