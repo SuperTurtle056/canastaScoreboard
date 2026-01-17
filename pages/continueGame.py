@@ -24,8 +24,15 @@ if st.button("Continue"):
     )
 
     if round_df.empty:
-        st.session_state["round_id"] = 1
+        st.session_state["highest_round_id"] = 1
     else:
-        st.session_state["round_id"] = int(round_df["round_id"].max())
+        st.session_state["highest_round_id"] = int(round_df["round_id"].max())
 
     st.switch_page("pages/currentGame.py")
+
+st.sidebar.page_link('app.py', label='Home')
+st.sidebar.page_link('pages/leaderboard.py', label='Leaderboard')
+st.sidebar.page_link('pages/playerStats.py', label='Player Stats')
+st.sidebar.page_link('pages/teamStats.py', label='Team Stats')
+st.sidebar.page_link('pages/continueGame.py', label='Continue Game')
+st.sidebar.page_link('pages/startNewGame.py', label='New Game')

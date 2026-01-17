@@ -32,6 +32,8 @@ st.sidebar.page_link('pages/teamStats.py', label='Team Stats')
 st.sidebar.page_link('pages/continueGame.py', label='Continue Game')
 st.sidebar.page_link('pages/startNewGame.py', label='New Game')
 
+if "highest_round_id" not in st.session_state:
+    st.session_state['highest_round_id'] = 1 ## I don't know why this fixes everything?? Stops the session state being deleted?
 
 c.execute("""
 CREATE TABLE IF NOT EXISTS games (

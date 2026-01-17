@@ -61,28 +61,23 @@ st.markdown(
 )
 
 
-round_id = st.session_state["round_id"]
 game_id = st.session_state["current_game_id"]
 
 def new_round():
-    st.session_state['round_id'] += 1
+    st.session_state["highest_round_id"] +=1
 
 df_melds = pd.read_sql("SELECT * FROM melds WHERE game_id = ?", conn, params = (game_id,))
 df_red_threes = pd.read_sql("SELECT * FROM red_threes WHERE game_id = ?", conn, params = (game_id,))
 df_deductions = pd.read_sql("SELECT * FROM deductions WHERE game_id = ?", conn, params = (game_id,))
 
-## Convoluted way of checking each df to see which has the most rounds stored (otherwise inputting red threes without others doesnt update scores)
-# unique_rounds = [df_melds['round_id'].unique(),df_red_threes['round_id'].unique(),df_deductions['round_id'].unique()]
-# length_rounds = [len(x) for x in unique_rounds]
-# longest_index = np.argmax(np.array(length_rounds))
-# num_rounds = unique_rounds[longest_index]
 
-num_rounds = range(1,round_id+1)
+num_rounds = range(1,int(st.session_state["highest_round_id"])+1)
 
 players = pd.read_sql('SELECT * FROM players WHERE game_id = ?', conn, params = (game_id,))
 players = players['player']
 
 st.title("Scorecard")
+
 col1, col2, col3 = st.columns([0.15,0.425,0.425], vertical_alignment='bottom')
 
 ## Just for the looks
@@ -113,7 +108,7 @@ with col2:
     player_2_scores = []
     
     for round in num_rounds:
-        st.session_state["current_round_id"] = round
+        st.session_state["selected_round_id"] = round
         
         with col2_1:
             score_player_1 = df_meld_player_1.loc[df_meld_player_1['round_id'] == round, 'score'].sum() + red_threes(df_red_threes_player_1.loc[df_red_threes_player_1['round_id'] == round, 'card_count'].sum()) - df_deductions_player_1.loc[df_deductions_player_1['round_id'] == round, 'points_lost'].sum()
@@ -146,7 +141,7 @@ with col2:
             player_2_scores.append(score_player_2)
             
         with col2_3:
-            st.button(f'{score_player_1+score_player_2}', key = f'team_1_tot_round_{round}')
+            st.button(f'{score_player_1+score_player_2}', key = f'team_1_total_{round}')
     
     with col2_1:
         st.button(f'{sum(player_1_scores)}', key = 'p1_total')
@@ -212,7 +207,7 @@ with col3:
                     st.switch_page("pages/playerPointsInspect.py")
             player_4_scores.append(score_player_4)
         with col3_3:
-            st.button(f'{score_player_3+score_player_4}')
+            st.button(f'{score_player_3+score_player_4}', key = f'team_2_total_{round}')
     
     with col3_1:
         st.button(f'{sum(player_3_scores)}', key = 'p3_total')
@@ -228,36 +223,31 @@ with col3:
             st.button(f':red[{team_2_total}]', key = 'team_2_total')
 
 
-## Useful buttons
-newcols1, newcols2, newcols3 = st.columns(3)
-# with newcols1:
-#     st.page_link("pages/addRedThree.py", label="Add Red Threes", icon="➕")
-# with newcols2:
-#     st.page_link("pages/addMeld.py", label="Add Meld", icon="➕")
-# with newcols3:
-#     st.page_link("pages/handDeductions.py", label="Left in Hand", icon="➕")
+newcols1, newcols2, newcols3 = st.columns([0.35,0.4,0.22])
 
 with newcols2:
-    st.button('New Round', on_click=new_round)
+    st.button('New Round', on_click=new_round, icon = '➕')
         
-
-
 ## End game buttons
-newnewcols1, newnewcols2, newnewcols3, newnewcols4, newnewcols5 = st.columns(5)
-with newnewcols2:
+newnewcols1, newnewcols2, newnewcols3, newnewcols4, newnewcols5 = st.columns([0.3,0.05,0.3,0.05,0.3])
+with newnewcols1:
     if st.button('Save'):
-        if sum(player_3_scores) + sum(player_4_scores) > 5000 or sum(player_1_scores) + sum(player_2_scores):
+        if sum(player_3_scores) + sum(player_4_scores) > 5000 or sum(player_1_scores) + sum(player_2_scores) > 5000:
             st.switch_page('app.py')
         else:
             st.toast('No Winner Yet!')
-
-with newnewcols4:
-    if st.button('Discard'):
-        c.execute("""DELETE FROM deductions WHERE game_id = ?""", (game_id,))
-        c.execute("""DELETE FROM melds WHERE game_id = ?""", (game_id,))
-        c.execute("""DELETE FROM players WHERE game_id = ?""", (game_id,))
-        c.execute("""DELETE FROM red_threes WHERE game_id = ?""", (game_id,))
-        c.execute("""DELETE FROM games WHERE id = ?""", (game_id,))
-
-        conn.commit()
+            
+with newnewcols3:
+    if st.button('Continue Later'):
         st.switch_page('app.py')
+
+with newnewcols5:
+    if st.button('Discard'):
+        st.switch_page('pages/discardPage.py')
+        
+st.sidebar.page_link('app.py', label='Home')
+st.sidebar.page_link('pages/leaderboard.py', label='Leaderboard')
+st.sidebar.page_link('pages/playerStats.py', label='Player Stats')
+st.sidebar.page_link('pages/teamStats.py', label='Team Stats')
+st.sidebar.page_link('pages/continueGame.py', label='Continue Game')
+st.sidebar.page_link('pages/startNewGame.py', label='New Game')
