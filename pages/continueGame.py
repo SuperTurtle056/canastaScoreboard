@@ -11,7 +11,8 @@ c = conn.cursor()
 
 st.title('Continue Game')
 
-games_playing_df = pd.read_sql('SELECT * FROM games WHERE status = ?', conn, params = ('playing',))
+# games_playing_df = pd.read_sql('SELECT * FROM games WHERE status = ?', conn, params = ('playing',))
+games_playing_df = pd.read_sql('SELECT * FROM games', conn)
 
 for game_id in games_playing_df['id']:
     date_started = games_playing_df.loc[games_playing_df["id"] == game_id, "start_time"].iloc[0]

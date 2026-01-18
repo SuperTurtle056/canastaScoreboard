@@ -48,6 +48,16 @@ CREATE TABLE IF NOT EXISTS deductions (
 """)
 conn.commit()
 
+c.execute("""
+CREATE TABLE IF NOT EXISTS game_results (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    game_id TEXT,
+    player TEXT,
+    score INTEGER
+)
+""")
+conn.commit()
+
 st.markdown(
     """
     <style>
@@ -111,8 +121,13 @@ with col2:
         st.session_state["selected_round_id"] = round
         
         with col2_1:
-            score_player_1 = df_meld_player_1.loc[df_meld_player_1['round_id'] == round, 'score'].sum() + red_threes(df_red_threes_player_1.loc[df_red_threes_player_1['round_id'] == round, 'card_count'].sum()) - df_deductions_player_1.loc[df_deductions_player_1['round_id'] == round, 'points_lost'].sum()
+            score_player_1 = df_meld_player_1.loc[df_meld_player_1['round_id'] == round, 'score'].sum()
             
+            if score_player_1 > 0:
+                score_player_1 += red_threes(df_red_threes_player_1.loc[df_red_threes_player_1['round_id'] == round, 'card_count'].sum()) - df_deductions_player_1.loc[df_deductions_player_1['round_id'] == round, 'points_lost'].sum()
+            else:
+                score_player_1 -= red_threes(df_red_threes_player_1.loc[df_red_threes_player_1['round_id'] == round, 'card_count'].sum()) + df_deductions_player_1.loc[df_deductions_player_1['round_id'] == round, 'points_lost'].sum()
+                
             if df_deductions_player_1.loc[df_deductions_player_1['round_id'] == round, 'points_lost'].sum() == 0:
                 score_player_1 += 100
                 if st.button(f':violet[{score_player_1}]', key = f'p1_inspect_{round}'):
@@ -126,7 +141,13 @@ with col2:
             player_1_scores.append(score_player_1)
             
         with col2_2:
-            score_player_2 = df_meld_player_2.loc[df_meld_player_2['round_id'] == round, 'score'].sum() + red_threes(df_red_threes_player_2.loc[df_red_threes_player_2['round_id'] == round, 'card_count'].sum()) - df_deductions_player_2.loc[df_deductions_player_2['round_id'] == round, 'points_lost'].sum()
+            score_player_2 = df_meld_player_2.loc[df_meld_player_2['round_id'] == round, 'score'].sum()
+            
+            if score_player_2 > 0:
+                score_player_2 += red_threes(df_red_threes_player_2.loc[df_red_threes_player_2['round_id'] == round, 'card_count'].sum()) - df_deductions_player_2.loc[df_deductions_player_2['round_id'] == round, 'points_lost'].sum()
+            else:
+                score_player_2 -= red_threes(df_red_threes_player_2.loc[df_red_threes_player_2['round_id'] == round, 'card_count'].sum()) + df_deductions_player_2.loc[df_deductions_player_2['round_id'] == round, 'points_lost'].sum()
+            
             
             if df_deductions_player_2.loc[df_deductions_player_2['round_id'] == round, 'points_lost'].sum() == 0:
                 score_player_2 += 100
@@ -179,8 +200,14 @@ with col3:
     player_4_scores = []
     
     for round in num_rounds:
+        st.session_state["selected_round_id"] = round
         with col3_1:
-            score_player_3 = df_meld_player_3.loc[df_meld_player_3['round_id'] == round, 'score'].sum() + red_threes(df_red_threes_player_3.loc[df_red_threes_player_3['round_id'] == round, 'card_count'].sum()) - df_deductions_player_3.loc[df_deductions_player_3['round_id'] == round, 'points_lost'].sum()
+            score_player_3 = df_meld_player_3.loc[df_meld_player_3['round_id'] == round, 'score'].sum()
+            
+            if score_player_3 > 0:
+                score_player_3 += red_threes(df_red_threes_player_3.loc[df_red_threes_player_3['round_id'] == round, 'card_count'].sum()) - df_deductions_player_3.loc[df_deductions_player_3['round_id'] == round, 'points_lost'].sum()
+            else:
+                score_player_3 -= red_threes(df_red_threes_player_3.loc[df_red_threes_player_3['round_id'] == round, 'card_count'].sum()) + df_deductions_player_3.loc[df_deductions_player_3['round_id'] == round, 'points_lost'].sum()
             
             if df_deductions_player_3.loc[df_deductions_player_3['round_id'] == round, 'points_lost'].sum() == 0:
                 score_player_3 += 100
@@ -195,7 +222,13 @@ with col3:
             player_3_scores.append(score_player_3)
             
         with col3_2:
-            score_player_4 = df_meld_player_4.loc[df_meld_player_4['round_id'] == round, 'score'].sum() + red_threes(df_red_threes_player_4.loc[df_red_threes_player_4['round_id'] == round, 'card_count'].sum()) - df_deductions_player_4.loc[df_deductions_player_4['round_id'] == round, 'points_lost'].sum()
+            score_player_4 = df_meld_player_4.loc[df_meld_player_4['round_id'] == round, 'score'].sum() 
+            
+            if score_player_4 > 0:
+                score_player_4 += red_threes(df_red_threes_player_4.loc[df_red_threes_player_4['round_id'] == round, 'card_count'].sum()) - df_deductions_player_4.loc[df_deductions_player_4['round_id'] == round, 'points_lost'].sum()
+            else:
+                score_player_4 -= red_threes(df_red_threes_player_4.loc[df_red_threes_player_4['round_id'] == round, 'card_count'].sum()) + df_deductions_player_4.loc[df_deductions_player_4['round_id'] == round, 'points_lost'].sum()
+            
             if df_deductions_player_4.loc[df_deductions_player_4['round_id'] == round, 'points_lost'].sum() == 0:
                 score_player_4 += 100
                 if st.button(f':violet[{score_player_4}]', key = f'p4_inspect_{round}'):
@@ -230,12 +263,25 @@ with newcols2:
         
 ## End game buttons
 newnewcols1, newnewcols2, newnewcols3, newnewcols4, newnewcols5 = st.columns([0.3,0.05,0.3,0.05,0.3])
+player_scores = [
+    sum(player_1_scores),
+    sum(player_2_scores),
+    sum(player_3_scores),
+    sum(player_4_scores)
+]
+
 with newnewcols1:
     if st.button('Save'):
         if sum(player_3_scores) + sum(player_4_scores) > 5000 or sum(player_1_scores) + sum(player_2_scores) > 5000:
-            c.execute("UPDATE games SET status = ? WHERE game_id = ?",("completed", game_id))
+            c.execute("UPDATE games SET status = ? WHERE id = ?",("completed", game_id))
             conn.commit()
-            st.switch_page('app.py')
+            
+            for index in range(len(players)):
+                player = players[index]
+                score = player_scores[index]
+                c.execute("""INSERT INTO game_results (game_id, player, score) VALUES (?,?,?) """, (game_id, player, int(score),))
+                conn.commit()
+            st.switch_page('pages/gameComplete.py')
         else:
             st.toast('No Winner Yet!')
             
