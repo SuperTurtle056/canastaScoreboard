@@ -11,15 +11,12 @@ c = conn.cursor()
 
 player_df = pd.read_sql('SELECT player FROM all_player_names', conn)
 
-st.title("Team Stats")
+st.title("Awards")
 
-col1, col2 = st.columns(2)
+if st.button(" ", key="emperor", help="The Emperor"):
+    st.session_state["flipped_emperor"] = True
 
-with col1:
-    st.selectbox('Select Player 1', player_df['player'])
-
-with col2:
-    st.selectbox('Select Player 2', player_df['player'])
+st.image("images/the_emperor.jpg")
 
 
 
