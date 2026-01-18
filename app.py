@@ -44,6 +44,7 @@ conn.commit()
 
 
 ##TODO
-# Logic on going out points - have to have made a meld over 300 points.
+# Logic on going out points (add new round) - have to have made a meld over 300 points.
 # Logic on red threes - max number in round and double points if one team gets all
+# Logic on number of cards (8 of each and 4 jokers) - some sort of error message when too many of a card are selected
 # Hidden canasta button for bonus

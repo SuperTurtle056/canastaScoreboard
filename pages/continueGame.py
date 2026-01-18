@@ -13,8 +13,6 @@ st.title('Continue Game')
 
 games_playing_df = pd.read_sql('SELECT * FROM games WHERE status = ?', conn, params = ('playing',))
 
-# game_id = st.selectbox("Game ID", games_playing_df['id'])
-
 for game_id in games_playing_df['id']:
     date_started = games_playing_df.loc[games_playing_df["id"] == game_id, "start_time"].iloc[0]
     date_started = pd.to_datetime(date_started).strftime("%d %b %Y, %H:%M")

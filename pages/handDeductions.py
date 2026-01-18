@@ -4,15 +4,14 @@ from scoreCalculator import meld_score, red_threes
 import pandas as pd
 
 game_id = st.session_state["current_game_id"]
+selected_round_id = int(st.session_state["selected_round_id"])
+selected_player = st.session_state["selected_player"]
 
 def get_connection():
     return sqlite3.connect("canasta.db", check_same_thread=False)
 
 conn = get_connection()
 c = conn.cursor()
-
-players = pd.read_sql('SELECT * FROM players WHERE game_id = ?', conn, params = (game_id,))
-players = players['player']
 
 st.title("Deductions")
 
@@ -35,13 +34,13 @@ CARD_SCORES= {
 
 first_col1, first_col2 = st.columns(2)
 
-with first_col1:
-    player = st.selectbox("Player", players)
-    st.markdown('###')
+# with first_col1:
+#     player = st.selectbox("Player", players)
+#     st.markdown('###')
     
-with first_col2:
-    round_id = st.number_input("Round Number", min_value=1, step=1)
-    st.markdown('###')
+# with first_col2:
+#     round_id = st.number_input("Round Number", min_value=1, step=1)
+#     st.markdown('###')
 
 
 col1, col2 = st.columns(2)
@@ -68,7 +67,7 @@ with newcols1:
             INSERT INTO deductions 
             (game_id, round_id, player, points_lost)
             VALUES (?, ?, ?, ?)
-        """, (game_id, round_id, player, total))
+        """, (game_id, selected_round_id, selected_player, total))
 
         conn.commit()
         st.switch_page('pages/currentGame.py')
