@@ -1,8 +1,6 @@
 import streamlit as st
 import sqlite3
-from scoreCalculator import meld_score, red_threes
 import pandas as pd
-import numpy as np
 
 ## Database stuff
 def get_connection():
@@ -115,7 +113,9 @@ with col1:
 with col2:
     st.subheader(f"{df_totals_sorted.iloc[0]['player']} - {df_totals_sorted.iloc[0]['score']}")
     st.subheader(f"{highest_score_player} - {highest_score}")
-    st.subheader(f"{df_total_red_threes.iloc[0]['player']} - {df_total_red_threes.iloc[0]['card_count']}")
+    
+    st.subheader(f"{df_total_red_threes.iloc[0]['player']} - {df_total_red_threes.iloc[0]['card_count']}", help = f"{df_total_red_threes.iloc[1]['player']} - {df_total_red_threes.iloc[1]['card_count']}\n{df_total_red_threes.iloc[2]['player']} - {df_total_red_threes.iloc[2]['card_count']}\n{df_total_red_threes.iloc[3]['player']} - {df_total_red_threes.iloc[3]['card_count']}")
+    
     st.subheader(f"{player_went_out} - {player_went_out_times}")
     st.subheader(f"{df_total_deductions.iloc[0]['player']} - {df_total_deductions.iloc[0]['points_lost']}")
     st.subheader(f"{player_wild_cards} - {player_wild_cards_times}")

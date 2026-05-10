@@ -1,7 +1,6 @@
 import streamlit as st
 import sqlite3
-from scoreCalculator import meld_score, red_threes
-import pandas as pd
+from scoreCalculator import meld_score
 
 game_id = st.session_state["current_game_id"]
 selected_round_id = int(st.session_state["selected_round_id"])

@@ -1,6 +1,6 @@
 import streamlit as st
 import sqlite3
-from scoreCalculator import meld_score, red_threes
+from utils import render_sidebar
 import pandas as pd
 
 def get_connection():
@@ -95,9 +95,4 @@ if st.button('Start Game'):
         st.warning('You have duplicate players!')
     
    
-st.sidebar.page_link('app.py', label='Home')
-st.sidebar.page_link('pages/leaderboard.py', label='Leaderboard')
-st.sidebar.page_link('pages/awards.py', label='Awards')
-st.sidebar.page_link('pages/teamStats.py', label='Team Stats')
-st.sidebar.page_link('pages/continueGame.py', label='Continue Game')
-st.sidebar.page_link('pages/startNewGame.py', label='New Game')
+render_sidebar()

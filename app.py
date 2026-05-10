@@ -1,7 +1,6 @@
 import streamlit as st
 import sqlite3
-from scoreCalculator import meld_score, red_threes
-import pandas as pd
+from utils import render_sidebar
 
 def get_connection():
     return sqlite3.connect("canasta.db", check_same_thread=False)
@@ -23,12 +22,7 @@ The top card of the draw pile is flipped over and placed next to the pile to sta
 3. Discard a card from hand to the discard pile""")
 
 # Sidebar navigation
-st.sidebar.page_link('app.py', label='Home')
-st.sidebar.page_link('pages/leaderboard.py', label='Leaderboard')
-st.sidebar.page_link('pages/playerStats.py', label='Player Stats')
-st.sidebar.page_link('pages/teamStats.py', label='Team Stats')
-st.sidebar.page_link('pages/continueGame.py', label='Continue Game')
-st.sidebar.page_link('pages/startNewGame.py', label='New Game')
+render_sidebar()
 
 if "highest_round_id" not in st.session_state:
     st.session_state['highest_round_id'] = 1 ## I don't know why this fixes everything?? Stops the session state being deleted?

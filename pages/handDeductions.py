@@ -1,7 +1,5 @@
 import streamlit as st
 import sqlite3
-from scoreCalculator import meld_score, red_threes
-import pandas as pd
 
 game_id = st.session_state["current_game_id"]
 selected_round_id = int(st.session_state["selected_round_id"])
@@ -31,17 +29,6 @@ CARD_SCORES= {
     '2': 20,
     'Joker': 50
 }
-
-first_col1, first_col2 = st.columns(2)
-
-# with first_col1:
-#     player = st.selectbox("Player", players)
-#     st.markdown('###')
-    
-# with first_col2:
-#     round_id = st.number_input("Round Number", min_value=1, step=1)
-#     st.markdown('###')
-
 
 col1, col2 = st.columns(2)
 total = 0
