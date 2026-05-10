@@ -57,11 +57,18 @@ leaderboard = (
 )
 
 st.title("Leaderboard")
+st.caption("Click a row to view that player's stats.")
 
 sort_col = st.selectbox("Sort by", leaderboard.columns[1:], index=1)
 leaderboard = leaderboard.sort_values(sort_col, ascending=False).reset_index(drop=True)
 
-st.dataframe(leaderboard, hide_index=True, use_container_width=True)
+selection = st.dataframe(leaderboard, hide_index=True, use_container_width=True,
+                         on_select="rerun", selection_mode="single-row")
+
+if selection.selection.rows:
+    selected_player = leaderboard.iloc[selection.selection.rows[0]]["Player"]
+    st.session_state["selected_player"] = selected_player
+    st.switch_page("pages/playerStats.py")
 
 ##TODO
 # Players selectable to see into individual stats
