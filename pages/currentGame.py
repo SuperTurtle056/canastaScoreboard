@@ -275,10 +275,12 @@ with newnewcols1:
             c.execute("UPDATE games SET status = ? WHERE id = ?",("completed", game_id))
             conn.commit()
             
-            for index in range(len(players)):
-                player = players[index]
-                score = player_scores[index]
-                c.execute("""INSERT INTO game_results (game_id, player, score) VALUES (?,?,?) """, (game_id, player, int(score),))
+            already_saved = c.execute("SELECT 1 FROM game_results WHERE game_id = ?", (game_id,)).fetchone()
+            if not already_saved:
+                for index in range(len(players)):
+                    player = players[index]
+                    score = player_scores[index]
+                    c.execute("INSERT INTO game_results (game_id, player, score) VALUES (?,?,?)", (game_id, player, int(score)))
                 conn.commit()
             st.switch_page('pages/gameComplete.py')
         else:
