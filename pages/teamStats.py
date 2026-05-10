@@ -99,8 +99,6 @@ else:
         m1.metric("Games Together",        n_games)
         m2.metric("Win Rate",              f"{win_rate:.0%}")
         m3.metric("Avg Score / Game",      f"{df_stats['Team Score'].mean():.0f}")
-        # m4.metric("Avg Melds / Game",      f"{df_stats['Melds'].mean():.1f}")
-        # m5.metric("Avg Wild Cards / Game", f"{wild_per_game:.1f}")
 
         st.markdown("---")
 
@@ -154,26 +152,27 @@ else:
             legend_title=None,
         )
 
-        # ── Score contribution (keep alongside score chart) ──────────────────
-        contrib_rows = [
-            {"Game": df_stats.loc[df_stats["game_id"] == gid, "Game"].values[0],
-             "Player": p,
-             "Score": int(df_results[(df_results["game_id"] == gid) & (df_results["player"] == p)]["score"].sum())}
-            for gid in game_ids for p in [player_1, player_2]
-        ]
-        fig_contrib = px.bar(
-            pd.DataFrame(contrib_rows), x="Game", y="Score", color="Player",
-            barmode="stack", color_discrete_sequence=["#3498db", "#9b59b6"],
-            title="Score Contribution per Game",
-        )
-        fig_contrib.update_layout(
-            xaxis_title=None,
-            plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+        # ── Score contribution ──────────────────
+        contrib_data = pd.DataFrame({
+            "Player": [player_1, player_2],
+            "Avg Score": [
+                df_results[(df_results["player"] == p) & (df_results["game_id"].isin(game_ids))]["score"].sum() / n_games
+                for p in [player_1, player_2]
+            ],
+        })
+        fig_contrib = px.pie(
+            contrib_data, names="Player", values="Avg Score",
+            color_discrete_sequence=["#3498db", "#9b59b6"],
+            title="Avg Score Contribution per Game",
         )
 
-        chart_left, chart_right = st.columns(2)
-        chart_left.plotly_chart(fig_scores,  use_container_width=True)
-        chart_right.plotly_chart(fig_contrib, use_container_width=True)
+        fig_contrib.update_layout(
+            plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+            height=400,
+        )
+
+        st.plotly_chart(fig_scores,  use_container_width=True)
+        st.plotly_chart(fig_contrib, use_container_width=True)
 
         st.markdown("---")
 
